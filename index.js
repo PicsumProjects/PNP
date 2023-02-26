@@ -33,3 +33,6 @@ class Socket
     this.#requestCanary++;
   };
 };
+
+module.exports = Socket;
+
