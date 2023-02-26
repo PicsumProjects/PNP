@@ -34,5 +34,5 @@ class Socket
   };
 };
 
-module.exports = Socket;
+if(window["require"]) module.exports = Socket;
 
