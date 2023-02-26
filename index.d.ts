@@ -1,5 +1,5 @@
 export interface Socket
 {
   ws: WebSocket | null = null;
-  sendMessage(): Uint8Array;
+  async sendAndWait(data: Uint8Array): Promise<Uint8Array>;
 };
