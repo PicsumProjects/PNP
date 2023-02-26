@@ -6,6 +6,11 @@ class Socket
   #msgHandlerOn = false;
   #currentData = new Uint8Array(0);
   
+  constructor(url)
+  {
+    this.ws = new WebSocket(url);
+  };
+
   sendAndWait(data)
   {
     if(data.constructor !== Uint8Array) throw new TypeError('data must be a Uint8Array');
