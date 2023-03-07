@@ -1,0 +1,37 @@
+# PNP over HTTP
+
+This is the spec for PNPoHTTP (Picsum Networking Protocol over HTTP.)
+
+## Creating a connection
+
+The way to do this is to generate a random key (of 12 bytes encoded in hex), and send it this way over HTTP(S), as a POST request:
+
+http(s)://(server url):(port)/(PNP over HTTP endpoint)/?msg=connect&key=(random key in hex)&(any params here)
+
+Then a server stores that key in any key-value store, the key being the random key and the value being an unsigned integer with at least 16 bits. The counter will be used later.
+
+An ISAAC cryptorandom number generator must be created for the connection (the seed being the initial key sent), and the connection is identified using the key.
+
+## Send data over connection
+
+The way to do this is to then get 12 bytes from the ISAAC cryptorandom number generator created beforehand, and send a GET request like this:
+
+http(must have ssl if the previous request had SSL)://(server url):(same port as last request)/(PNP over HTTP endpoint)/?msg=send&key=(same key as last request in hex)&otherkey=(data from ISAAC RNG)
+
+When a server sees a request for sending data, it must increment the value of the key sent beforehand to create the connection, and get 12 bytes from the ISAAC RNG, and if the sent key in the request is not equal, then a 401 (Unauthorized) code will be sent and the connection will be closed. If the client sees the code 401, it will know that the connection has closed and will do no futher action.
+
+If not, however, that means the data has been sent correctly, and the server may process the data sent, which is in the body of the request.
+
+## Get data sent from server
+
+The client must send a GET request the same as sending data over connections, but the server will respond with the data it wants to send.
+
+## Close connection (client)
+
+Same thing as sending data over connection, but the "msg" query parameter must be "close".
+
+## Close connection (server)
+
+Note: Does not apply to error codes, the client will know the connection is closed on an error code.
+
+On the next get data request, the server must respond with 404.
