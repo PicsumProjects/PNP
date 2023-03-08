@@ -6,7 +6,7 @@ This is the spec for PNP (Picsum Networking Protocol.)
 
 The way to do this is to generate a random key (of 12 bytes encoded in hex), and send it this way over HTTP(S), as a POST request:
 
-http(s)://(server url):(port)/(PNP over HTTP endpoint)/?msg=connect&key=(random key in hex)&(any params here)
+`http(s)://(server url):(port)/(PNP over HTTP endpoint)/?msg=connect&key=(random key in hex)&(any params here)`
 
 Then a server stores that key in any key-value store, the key being the random key and the value being an unsigned integer with at least 16 bits. The counter will be used later.
 
@@ -21,7 +21,7 @@ maxGetTimeout: 3600 _(in ms)_
 
 The way to do this is to then get 12 bytes from the ISAAC cryptorandom number generator created beforehand, and send a GET request like this:
 
-http(must have ssl if the previous request had SSL)://(server url):(same port as last request)/(PNP over HTTP endpoint)/?msg=send&key=(same key as last request in hex)&otherkey=(data from ISAAC RNG)
+`http(must have ssl if the previous request had SSL)://(server url):(same port as last request)/(PNP over HTTP endpoint)/?msg=send&key=(same key as last request in hex)&otherkey=(data from ISAAC RNG)`
 
 When a server sees a request for sending data, it must increment the value of the key sent beforehand to create the connection, and get 12 bytes from the ISAAC RNG, and if the sent key in the request is not equal, then a 401 (Unauthorized) code will be sent and the connection will be closed. If the client sees the code 401, it will know that the connection has closed and will do no futher action.
 
