@@ -1,6 +1,6 @@
-# PNP over HTTP
+# PNP spec
 
-This is the spec for PNPoHTTP (Picsum Networking Protocol over HTTP.)
+This is the spec for PNP (Picsum Networking Protocol.)
 
 ## Creating a connection
 
@@ -12,6 +12,11 @@ Then a server stores that key in any key-value store, the key being the random k
 
 An ISAAC cryptorandom number generator must be created for the connection (the seed being the initial key sent), and the connection is identified using the key.
 
+The timeout the server will wait for a subsequent send data or get data (not the HTTP method) request is specified in the result of the request, like this:
+
+maxSendTimeout: 3600 _(in ms)_
+maxGetTimeout: 3600 _(in ms)_
+
 ## Send data over connection
 
 The way to do this is to then get 12 bytes from the ISAAC cryptorandom number generator created beforehand, and send a GET request like this:
@@ -21,6 +26,10 @@ http(must have ssl if the previous request had SSL)://(server url):(same port as
 When a server sees a request for sending data, it must increment the value of the key sent beforehand to create the connection, and get 12 bytes from the ISAAC RNG, and if the sent key in the request is not equal, then a 401 (Unauthorized) code will be sent and the connection will be closed. If the client sees the code 401, it will know that the connection has closed and will do no futher action.
 
 If not, however, that means the data has been sent correctly, and the server may process the data sent, which is in the body of the request.
+
+If the server sends a 202 code, and the body of the response from the server is parsable as a base-10 unsigned integer, then the number sent in the response is how long the client should wait for the next get data request.
+
+If the server sends a 202 code, _however_ the result isn't parsable as a base-10 unsigned integer, then the client may wait 100 ms until the next get data request. If it has continuously sent get data requests, and the server has responded with a 202 code 49 times beforehand, the connection to the clent must be recieved as closed.
 
 ## Get data sent from server
 
