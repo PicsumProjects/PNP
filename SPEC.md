@@ -10,7 +10,7 @@ The way to do this is to generate a random key (of 12 bytes encoded in hex), and
 
 `http(s)://(server url):(port)/(PNP over HTTP endpoint)/?msg=connect&key=(random key in hex)&(any params here)`
 
-Then a server stores that key in any key-value store, the key being the random key and the value being an unsigned integer with at least 16 bits. The counter will be used later.
+Then a server stores that key in any key-value store, the key being the random key and the value being an ISAAC CSPRNG that generates 32 bits of output. The RNG will be used later.
 
 An ISAAC cryptorandom number generator must be created for the connection (the seed being the initial key sent), and the connection is identified using the key.
 
