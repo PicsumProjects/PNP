@@ -48,6 +48,6 @@ class PNPSocket {
       u8a = concatu8a([u8a, sendMsg[1]]);
     let sentData = await fetch(sendMsg, { body: u8a });
     if(!sentData.ok) throw new Error('PNP packet get response error');
-    setTimeout(this.#handle.bind(this), this.#latency);
+    setTimeout(this.handle.bind(this), this.#latency);
   };
 };
