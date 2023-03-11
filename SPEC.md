@@ -4,7 +4,7 @@ This is the spec for PNP (Picsum Networking Protocol.)
 
 ## Creating a connection
 
-The way to do this is to generate a random key (of 12 bytes encoded in hex), and send it this way over HTTP(S), as a POST request:
+The way to do this is to generate a random key (of 12 bytes encoded in hex), and send it this way over HTTP(S), as a GET request:
 
 `http(s)://(server url):(port)/(PNP over HTTP endpoint)/?msg=connect&key=(random key in hex)&(any params here)`
 
