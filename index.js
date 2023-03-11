@@ -1,4 +1,65 @@
 let ISAAC = require("./isaac");
+
+class PNPServer {
+  #handler = null;
+  #sendQueue = [];
+  onconnect = null;
+  ondisconnect = null;
+  onmessage = null;
+  
+  constructor(express, path)
+  {
+     this.#handler = setSocketListener(express, path, this.handlerUp.bind(this), this.handlerDown.bind(this));
+  };
+  
+  send(u8a, clientData)
+  {
+    this.#sendQueue.push(['send'], new Uint8Array(u8a), Array.prototype.slice.call(clientData));
+  };
+  
+  handlerDown(req, res)
+  {
+    let u8a = new Uint8Array(0);
+    let i = 0;
+    for(const data of this.#queue)
+    {
+      if(data[2] !== [res.query.key, res.query.otherkey]) continue;
+      if((data[0] === 'close') && (i === 0))
+      {
+        res.status(404).send({ message: '' });
+        delete this.#handler[0][req.query.key];
+        return;
+      } else if(res[0] === 'close') {
+        res.send(u8a);
+        this.#queue = this.#queue.slice(i);
+        return;
+      };
+      u8a = concatu8a([u8a, data[1]]);
+      i++;
+    };
+    
+    handlerUp(req, res) 
+    {
+      if(typeof this.#onmessage === "function") this.#onmessage(req.body, req.query.key);
+    };
+};
+
+module.exports = PNPServer;
+
+/* @preserve
+   Utils
+*/
+
+// https://stackoverflow.com/a/62414917
+const concatu8a = (arrays) => {
+  const flatNumberArray = arrays.reduce((acc, curr) => {
+    acc.push(...curr);
+    return acc;
+  }, []);
+
+  return new Uint8Array(flatNumberArray);
+};
+
 // https://stackoverflow.com/a/69585881
 const MAP_HEX = {
   0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6,
@@ -29,7 +90,7 @@ function setSocketListener(expressApp, path, handlerUp, handlerDown) {
             case "connect":
                let key = req.query.key;
                // Test for invalid handshakes
-               if((key.length != 24) || (!key.test(/[0-9A-Fa-f]{6}/g)) res.status(400).send({ message: '' }); 
+               if((key.length != 24) || (!key.test(/[0-9A-Fa-f]{6}/g) || (key in Object.keys(connections))) res.status(400).send({ message: '' }); 
                connections[key] = [new ISAAC(fromHex(key))];
                break;
             case "send":
@@ -48,7 +109,7 @@ function setSocketListener(expressApp, path, handlerUp, handlerDown) {
                if((key.length != 24) || (!key.test(/[0-9A-Fa-f]{6}/g)) res.status(400).send({ message: '' });
                if((isaacData.length != 8) || (!isaacData.test(/[0-9A-Fa-f]{6}/g)) res.status(400).send({ message: '' });
                let key_u8a = fromHex(key);
-               if(!(key in Object.keys(connections))) res.status(400).send({ message: '' });
+               if(!(key in Object.keys(connections))) res.status(404).send({ message: '' });
                if((connections[key].RandSignedInt()) !== parseInt(isaacData, 16)) res.status(401).send({ message: '' });
                handlerDown(req, res);
                break;
