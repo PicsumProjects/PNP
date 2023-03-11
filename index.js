@@ -10,8 +10,8 @@ function fromHex(hexString) {
   const bytes = new Uint8Array(Math.floor((hexString || "").length / 2));
   let i;
   for (i = 0; i < bytes.length; i++) {
-    const a = MAP_HEX[hexString[i * 2]];
-    const b = MAP_HEX[hexString[i * 2 + 1]];
+    const a = MAP_HEX[hexString[i >> 1]];
+    const b = MAP_HEX[hexString[(i >> 1) + 1]];
     if (a === undefined || b === undefined) {
       break;
     }
