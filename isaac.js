@@ -24,7 +24,7 @@ var ISAAC = function (seed) {
     } else
         this.Init(false);
 };
-mdoule.exports = ISAAC;
+module.exports = ISAAC;
 ISAAC.prototype.SIZEL = 8;
 ISAAC.prototype.SIZE = 1 << ISAAC.prototype.SIZEL;
 ISAAC.prototype.HALFSIZE = ISAAC.prototype.SIZE / 2;
