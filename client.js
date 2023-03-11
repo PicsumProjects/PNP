@@ -44,9 +44,8 @@ class PNPSocket {
     if(typeof this.onmessage === "function") this.onmessage(await data.arrayBuffer());
     let u8a = new Uint8Array(0);
     for(const sendMsg of this.#sendQueue)
-    {
-      let sentData = await fetch(sendMsg, { body: sendMsg[1] });
-      if(!data.ok) throw new Error('PNP packet get response error');
-    };
+      u8a = concatu8a([u8a, sendMsg[1]]);
+    let sentData = await fetch(sendMsg, { body: u8a });
+    if(!sentData.ok) throw new Error('PNP packet get response error');
   };
 };
