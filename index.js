@@ -37,6 +37,7 @@ class PNPServer {
       u8a = concatu8a([u8a, data[1]]);
       i++;
     };
+  };
     
     handlerUp(req, res) 
     {
