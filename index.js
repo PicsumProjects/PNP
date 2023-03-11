@@ -9,12 +9,22 @@ class PNPServer {
   
   constructor(express, path)
   {
-     this.#handler = setSocketListener(express, path, this.handlerUp.bind(this), this.handlerDown.bind(this));
+     this.#handler = setSocketListener(express, path, this.handlerUp.bind(this), this.handlerDown.bind(this), this.handlerConnect.bind(this), this.handlerClose.bind(this));
   };
   
   send(u8a, clientData)
   {
     this.#sendQueue.push(['send'], new Uint8Array(u8a), Array.prototype.slice.call(clientData));
+  };
+  
+  handlerConnect(req, res)
+  {
+    if(typeof this.onconnect === "function") this.onconnect(req.query.key);
+  };
+  
+  handlerClose(req, res)
+  {
+    if(typeof this.ondisconnect === "function") this.ondisconnect(req.query.key);
   };
   
   handlerDown(req, res)
@@ -39,10 +49,10 @@ class PNPServer {
     };
   };
     
-    handlerUp(req, res) 
-    {
-      if(typeof this.#onmessage === "function") this.#onmessage(req.body, req.query.key);
-    };
+  handlerUp(req, res) 
+  {
+    if(typeof this.onmessage === "function") this.onmessage(req.body, req.query.key);
+  };
 };
 
 module.exports = PNPServer;
@@ -82,7 +92,7 @@ function fromHex(hexString) {
   return i === bytes.length ? bytes : bytes.slice(0, i);
 }
 
-function setSocketListener(expressApp, path, handlerUp, handlerDown) {
+function setSocketListener(expressApp, path, handlerUp, handlerDown, handlerConnect, handlerClose) {
     let connections = {};
     expressApp.use(expressApp.raw());
     let reciever = expressApp.get(path, function (req, res) {
@@ -93,6 +103,7 @@ function setSocketListener(expressApp, path, handlerUp, handlerDown) {
                // Test for invalid handshakes
                if((key.length != 24) || (!key.test(/[0-9A-Fa-f]{6}/g) || (key in Object.keys(connections))) res.status(400).send({ message: '' }); 
                connections[key] = [new ISAAC(fromHex(key))];
+               handlerConnect(req, res);
                break;
             case "send":
                let key = req.query.key;
@@ -123,7 +134,7 @@ function setSocketListener(expressApp, path, handlerUp, handlerDown) {
                if(!(key in Object.keys(connections))) res.status(400).send({ message: '' });
                if((connections[key].RandSignedInt()) !== parseInt(isaacData, 16)) res.status(401).send({ message: '' });
                delete connections[key];
-               handlerUp(req, res);
+               handlerClose(req, res);
                break;
            default:
                res.status(400).send({ message: '' });
