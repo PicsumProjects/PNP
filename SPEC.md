@@ -2,6 +2,8 @@
 
 This is the spec for PNP (Picsum Networking Protocol.)
 
+If any request is incorrect, send a 400 error code.
+
 ## Creating a connection
 
 The way to do this is to generate a random key (of 12 bytes encoded in hex), and send it this way over HTTP(S), as a GET request:
