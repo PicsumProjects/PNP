@@ -26,6 +26,7 @@ class PNPSocket {
   #latency = 10;
   onmessage = null;
   url = null;
+  state = 0;
   
   constructor(url, latency = 20) {
     this.url = url;
@@ -37,9 +38,19 @@ class PNPSocket {
   {
     this.#sendQueue.push([new URL(`./?msg=send&key=${buf2hex(this.#key)}&otherkey=${(2147483647 + this.#isaac.RandSignedInt()).toString(16)}`, this.url).href, new Uint8Array(data)]);
   };
+   
+  async #start()
+  {
+     let data = await fetch(new URL(`./?msg=connect&key=${buf2hex(this.#key)}`, this.url).href);
+     if(!data.ok)
+        throw new Error('Failed to connect to server error ');
+     this.state = 1;
+  };
   
   async handle()
   {
+    if(this.state === 0)
+      await this.#start();
     let data = (await fetch(new URL(`./?msg=get&key=${buf2hex(this.#key)}&otherkey=${(2147483647 + this.#isaac.RandSignedInt()).toString(16)}`, this.url).href));
     if(!data.ok && !(data.statusCode === 404)) throw new Error('PNP packet send response error');
     if(typeof this.onmessage === "function") this.onmessage(await data.arrayBuffer());
