@@ -23,13 +23,14 @@ class PNPSocket {
   #key = window.crypto.getRandomValues(12);
   #isaac = null;
   #sendQueue = [];
+  #latency = 10;
   onmessage = null;
   url = null;
   
   constructor(url, latency = 20) {
     this.url = url;
     this.#isaac = new ISAAC(this.#key);
-    setInterval(this.handle.bind(this), (latency >>> 0));
+    setTimeout(this.handle.bind(this), this.#latency = (latency >>> 0));
   };
   
   send(data)
