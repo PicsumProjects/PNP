@@ -46,3 +46,13 @@ Same thing as sending data over connection, but the "msg" query parameter must b
 Note: Does not apply to error codes, the client will know the connection is closed on an error code.
 
 On the next get data request, the server must respond with 404.
+
+# Encryption
+
+In order to encrypt data, it is encrypted on both sides by XORing the data going to the server with the count of send requests from the client XOR the ISAAC data XOR the count of send requests from the server * 2.
+
+The client must send a URL query param `&encrypt=1` to encryt the connection, and the server MUST follow through.
+
+# Compression
+
+The compression is done by HTTP compression.
