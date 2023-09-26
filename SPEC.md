@@ -2,7 +2,7 @@
 
 This is the spec for PNP (Picsum Networking Protocol.)
 
-If any request is incorrect, send a 400 error code.
+If any request is incorrect, send a 400 error code if it's unknown, and 401 if it's auth.
 
 ## Creating a connection
 
