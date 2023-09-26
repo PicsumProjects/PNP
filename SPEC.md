@@ -35,7 +35,7 @@ If the server sends a 202 code, _however_ the result isn't parsable as a base-10
 
 ## Get data sent from server
 
-The client must send a GET request the same as sending data over connections, but the server will respond with the data it wants to send.
+The client must send a GET request the same as sending data over connections, but the server will respond with the data it wants to send, and it's message parameter is "get", not "send".
 
 ## Close connection (client)
 
