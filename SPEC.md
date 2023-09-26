@@ -17,6 +17,7 @@ An ISAAC cryptorandom number generator must be created for the connection (the s
 The timeout the server will wait for a subsequent send data or get data (not the HTTP method) request is specified in the result of the request, like this:
 
 maxSendTimeout: 3600 _(in ms)_
+(newline)
 maxGetTimeout: 3600 _(in ms)_
 
 ## Send data over connection
